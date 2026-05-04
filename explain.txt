@@ -1,0 +1,77 @@
+QUICK REVISION SHEET
+====================
+Topic: Dynamic Memory Management & Static Classes (C++)
+
+
+CORE IDEA
+---------
+In C++, you can allocate memory at runtime using "new" and free it
+using "delete". This gives you flexible-size data, but YOU are
+responsible for cleaning up. If you forget, you get memory leaks.
+
+Static class members belong to the class itself, not to any object.
+They are shared across all instances.
+
+
+WHY IT MATTERS
+--------------
+- Arrays whose size is only known at runtime need dynamic memory.
+- If you copy an object with a pointer, you need DEEP copy.
+  Otherwise two objects share the same memory (very bad).
+- Static members let you track global state (e.g. how many objects
+  exist) without using global variables.
+
+
+KEY RULES
+---------
+1. Every "new" must have a matching "delete".
+   Every "new[]" must have a matching "delete[]".
+
+2. A destructor (~ClassName) runs automatically when an object
+   goes out of scope. Put your "delete" there.
+
+3. Copy constructor = creates a NEW object from an existing one.
+     IntArray b(a);    // copy constructor called
+
+4. Copy assignment  = overwrites an EXISTING object with another.
+     b = a;           // copy assignment called
+   Always check for self-assignment: if (this != &other)
+
+5. Static members are declared with "static" inside the class,
+   but must be DEFINED once outside the class:
+     int Tracker::objectCount = 0;
+
+6. Static functions can only access static members.
+   You call them with ClassName::functionName().
+
+
+SMALL CODE SNIPPETS
+-------------------
+Dynamic allocation:
+    int* arr = new int[10];   // allocate 10 ints
+    arr[0] = 42;
+    delete[] arr;             // free the memory
+
+Deep copy in copy constructor:
+    data = new int[other.capacity];
+    for (int i = 0; i < other.count; i++)
+        data[i] = other.data[i];
+
+Static member:
+    class Tracker {
+        static int count;       // declaration
+    public:
+        static int getCount() { return count; }
+    };
+    int Tracker::count = 0;     // definition (outside class)
+
+Calling static function:
+    int n = Tracker::getCount();   // no object needed
+
+
+COMMON TRAPS
+------------
+- Using "delete" on an array (need "delete[]")
+- Forgetting to deep-copy in copy constructor -> double free crash
+- Not checking self-assignment in operator= -> data destroyed
+- Not initializing static member -> linker error
